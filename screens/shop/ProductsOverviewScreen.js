@@ -1,13 +1,14 @@
-import React from 'react'
-import { FlatList, Button } from 'react-native'
+import React, { useEffect, useState, useCallback } from 'react'
+import { FlatList, Button, ActivityIndicator, View } from 'react-native'
 import { useNavigation, CommonActions } from '@react-navigation/native'
 import { useSelector, useDispatch } from 'react-redux'
 import ProductItem from '../../components/shop/ProductItem'
 import * as CartActions from '../../store/actions/carts'
+import * as ProductActions from '../../store/actions/products'
 import Colors from '../../constants/Colors'
 
-
 const ProductsOverviewScreen = (props) => {
+  const [isLoading, setLoading] = useState(false)
   const dispatch = useDispatch()
   const products = useSelector((state) => state.products.availableProducts)
   const navigation = useNavigation()
@@ -17,6 +18,35 @@ const ProductsOverviewScreen = (props) => {
       productTitle: title,
     })
   }
+  const loadProduct = useCallback(async () => {
+    setLoading(true)
+    try {
+      await dispatch(ProductActions.fetchProducts())
+    } catch (err) {
+
+    }
+    setLoading(false)
+  }, [dispatch, setLoading])
+
+  useEffect(() => {
+    const willFocusSub = props.navigation.addListener('willFocus',loadProduct)
+
+    return () => {
+      willFocusSub.remove()
+    }
+  },[loadProduct])
+  
+  useEffect(() => {
+    loadProduct()
+  }, [loadProduct])
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    )
+  }
+
   return (
     <FlatList
       data={products}

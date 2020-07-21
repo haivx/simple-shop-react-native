@@ -1,8 +1,9 @@
+import React from 'react';
+import { useDispatch } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { createDrawerNavigator } from '@react-navigation/drawer'
 import { Platform, Button } from 'react-native'
-import React from 'react'
 import { HeaderButtons, Item } from 'react-navigation-header-buttons'
 import { Ionicons } from '@expo/vector-icons'
 import ProductsOverviewScreen from '../screens/shop/ProductsOverviewScreen'
@@ -12,6 +13,7 @@ import HeaderButton from '../components/UI/HeaderButton'
 import OrderScreen from '../screens/shop/OrdersScreen'
 import UserProductScreen from '../screens/user/UserProductsScreen'
 import EditProductScreen from '../screens/user/EditProductScreen'
+import * as productsActions from '../store/actions/products';
 
 const Stack = createStackNavigator()
 
@@ -86,7 +88,8 @@ const productStack = ({ navigation }) => {
     </Stack.Navigator>
   )
 }
-const adminNavigator = () => {
+const adminNavigator = (props) => {
+  const dispatch = useDispatch()
   return (
     <Stack.Navigator initialRouteName="UserProductScreen" headerTincolor="#fff">
       <Stack.Screen
@@ -127,12 +130,11 @@ const adminNavigator = () => {
         name="EditProductScreen"
         component={EditProductScreen}
         options={{
+          headerTitle: 'Edit or Add',
           drawerLabel: 'Edit',
           drawerIcon: (drawerConfig) => (
             <Ionicons
-              name={
-                Platform.OS === 'android' ? 'md-create' : 'ios-create'
-              }
+              name={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
               size={23}
               color={drawerConfig.tintColor}
             />
@@ -143,7 +145,7 @@ const adminNavigator = () => {
   )
 }
 
-const ProductNavigator = () => (
+const ProductNavigator = (props) => (
   <NavigationContainer>
     <Drawer.Navigator initialRouteName="ProductsOverview">
       <Drawer.Screen
