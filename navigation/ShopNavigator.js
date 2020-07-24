@@ -1,5 +1,5 @@
-import React from 'react';
-import { useDispatch } from 'react-redux';
+import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { createDrawerNavigator } from '@react-navigation/drawer'
@@ -13,7 +13,8 @@ import HeaderButton from '../components/UI/HeaderButton'
 import OrderScreen from '../screens/shop/OrdersScreen'
 import UserProductScreen from '../screens/user/UserProductsScreen'
 import EditProductScreen from '../screens/user/EditProductScreen'
-import * as productsActions from '../store/actions/products';
+import * as productsActions from '../store/actions/products'
+import AuthScreen from '../screens/user/AuthScreen'
 
 const Stack = createStackNavigator()
 
@@ -145,53 +146,64 @@ const adminNavigator = (props) => {
   )
 }
 
-const ProductNavigator = (props) => (
-  <NavigationContainer>
-    <Drawer.Navigator initialRouteName="ProductsOverview">
-      <Drawer.Screen
-        name="OrdersScreen"
-        component={orderStack}
-        options={{
-          drawerLabel: 'Order',
-          drawerIcon: (drawerConfig) => (
-            <Ionicons
-              name={Platform.OS === 'android' ? 'md-list' : 'ios-list'}
-              size={23}
-              color={drawerConfig.tintColor}
-            />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="ProductsOverview"
-        component={productStack}
-        options={{
-          drawerLabel: 'Product',
-          drawerIcon: (drawerConfig) => (
-            <Ionicons
-              name={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-              size={23}
-              color={drawerConfig.tintColor}
-            />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="UserProductScreen"
-        component={adminNavigator}
-        options={{
-          drawerLabel: 'Admin',
-          drawerIcon: (drawerConfig) => (
-            <Ionicons
-              name={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
-              size={23}
-              color={drawerConfig.tintColor}
-            />
-          ),
-        }}
-      />
-    </Drawer.Navigator>
-  </NavigationContainer>
-)
+const ProductNavigator = (props) => {
+
+  const currentUser = useSelector((state) => state.user.userInfo)
+  let isLoggedIn = currentUser && currentUser.expiresIn > 0
+  return (
+    <NavigationContainer>
+      {isLoggedIn ? (
+        <Drawer.Navigator initialRouteName="ProductsOverview">
+          <Drawer.Screen
+            name="OrdersScreen"
+            component={orderStack}
+            options={{
+              drawerLabel: 'Order',
+              drawerIcon: (drawerConfig) => (
+                <Ionicons
+                  name={Platform.OS === 'android' ? 'md-list' : 'ios-list'}
+                  size={23}
+                  color={drawerConfig.tintColor}
+                />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="ProductsOverview"
+            component={productStack}
+            options={{
+              drawerLabel: 'Product',
+              drawerIcon: (drawerConfig) => (
+                <Ionicons
+                  name={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
+                  size={23}
+                  color={drawerConfig.tintColor}
+                />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="UserProductScreen"
+            component={adminNavigator}
+            options={{
+              drawerLabel: 'Admin',
+              drawerIcon: (drawerConfig) => (
+                <Ionicons
+                  name={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
+                  size={23}
+                  color={drawerConfig.tintColor}
+                />
+              ),
+            }}
+          />
+        </Drawer.Navigator>
+      ) : (
+        <Stack.Navigator>
+          <Stack.Screen name="SignIn" component={AuthScreen} />
+        </Stack.Navigator>
+      )}
+    </NavigationContainer>
+  )
+}
 
 export default ProductNavigator

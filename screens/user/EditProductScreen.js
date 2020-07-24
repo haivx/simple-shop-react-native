@@ -36,7 +36,6 @@ const formReducer = (state, action) => {
     for (const key in updatedValidities) {
       updatedFormIsValid = updatedFormIsValid && updatedValidities[key]
     }
-    console.log('STATA', updatedValidities ,updatedFormIsValid)
     return {
       formIsValid: updatedFormIsValid,
       inputValidities: updatedValidities,
@@ -71,7 +70,6 @@ const EditProductScreen = (props) => {
 
   const inputChangeHandler = useCallback(
     (inputIdentifier, inputValue, inputValidity) => {
-      console.log('AAA', inputIdentifier, inputValue, inputValidity)
       dispatchFormState({
         type: FORM_INPUT_UPDATE,
         value: inputValue,
