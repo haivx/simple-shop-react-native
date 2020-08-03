@@ -6,9 +6,10 @@ export const DELETE_PRODUCT = 'DELETE_PRODUCT'
 export const SET_PRODUCTS = 'SET_PRODUCTS' 
 
 export const deleteProduct = (productId) => {
-  return async dispatch => {
+  return async (dispatch, getState) => {
+    const token = getState().user.userInfo.idToken;
     await fetch(
-      `https://simple-react-native-f23d5.firebaseio.com/products/${productId}.json`,
+      `https://simple-react-native-f23d5.firebaseio.com/products/${productId}.json?auth=${token}`,
       {
         method: 'DELETE',
         headers: {

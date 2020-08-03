@@ -1,9 +1,9 @@
-import React from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useState, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { createDrawerNavigator } from '@react-navigation/drawer'
-import { Platform, Button } from 'react-native'
+import { Platform, AsyncStorage } from 'react-native'
 import { HeaderButtons, Item } from 'react-navigation-header-buttons'
 import { Ionicons } from '@expo/vector-icons'
 import ProductsOverviewScreen from '../screens/shop/ProductsOverviewScreen'
@@ -15,6 +15,9 @@ import UserProductScreen from '../screens/user/UserProductsScreen'
 import EditProductScreen from '../screens/user/EditProductScreen'
 import * as productsActions from '../store/actions/products'
 import AuthScreen from '../screens/user/AuthScreen'
+import Profile from '../screens/user/Profile'
+import Contact from '../screens/contact/Contact'
+import Map from '../screens/contact/Map'
 
 const Stack = createStackNavigator()
 
@@ -146,10 +149,89 @@ const adminNavigator = (props) => {
   )
 }
 
-const ProductNavigator = (props) => {
+const contactStack = ({ navigation }) => {
+  return (
+    <Stack.Navigator initialRouteName="Contact" headerTincolor="#fff">
+      <Stack.Screen
+        name={'Contact'}
+        component={Contact}
+        options={({ navigation, route }) => ({
+          headerTitle: 'Contact',
+          headerLeft: () => (
+            <HeaderButtons HeaderButtonComponent={HeaderButton}>
+              <Item
+                title="Menu"
+                iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
+                onPress={() => {
+                  navigation.toggleDrawer()
+                }}
+              />
+            </HeaderButtons>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name={'Map'}
+        component={Map}
+        options={({ navigation, route }) => ({
+          headerTitle: 'Map',
+          headerLeft: () => (
+            <HeaderButtons HeaderButtonComponent={HeaderButton}>
+              <Item
+                title="Menu"
+                iconName={'ios-pin'}
+                onPress={() => {
+                  navigation.toggleDrawer()
+                }}
+              />
+            </HeaderButtons>
+          ),
+        })}
+      />
+    </Stack.Navigator>
+  )
+}
+const profileStack = ({ navigation }) => {
+  return (
+    <Stack.Navigator initialRouteName="Profile" headerTincolor="#fff">
+      <Stack.Screen
+        name={'Profile'}
+        component={Profile}
+        options={({ navigation, route }) => ({
+          headerTitle: 'Contact',
+          headerLeft: () => (
+            <HeaderButtons HeaderButtonComponent={HeaderButton}>
+              <Item
+                title="Menu"
+                iconName={'ios-menu'}
+                onPress={() => {
+                  navigation.toggleDrawer()
+                }}
+              />
+            </HeaderButtons>
+          ),
+        })}
+      />
+    </Stack.Navigator>
+  )
+}
 
-  const currentUser = useSelector((state) => state.user.userInfo)
-  let isLoggedIn = currentUser && currentUser.expiresIn > 0
+const ProductNavigator = (props) => {
+  const [isLoggedIn, setIsloggedIn] = useState(false)
+
+  useEffect(() => {
+    const tryLogin = async () => {
+      const userData = await AsyncStorage.getItem('userData')
+      const transformedData = userData ? JSON.parse(userData) : {}
+      const { token, userId, expirationDate } = transformedData
+      const expiryDate = new Date(expirationDate)
+
+      let isExpired = expiryDate <= new Date() || !token || !userId
+      setIsloggedIn(isExpired)
+    }
+    tryLogin()
+  }, [])
+
   return (
     <NavigationContainer>
       {isLoggedIn ? (
@@ -190,6 +272,35 @@ const ProductNavigator = (props) => {
               drawerIcon: (drawerConfig) => (
                 <Ionicons
                   name={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
+                  size={23}
+                  color={drawerConfig.tintColor}
+                />
+              ),
+            }}
+          />
+          <Drawer.Screen
+            name="Contact"
+            component={contactStack}
+            options={{
+              drawerLabel: 'Contact',
+              drawerIcon: (drawerConfig) => (
+                <Ionicons
+                  name={'ios-pin'}
+                  size={23}
+                  color={drawerConfig.tintColor}
+                />
+              ),
+            }}
+          />
+
+          <Drawer.Screen
+            name="Profile"
+            component={profileStack}
+            options={{
+              drawerLabel: 'Profile',
+              drawerIcon: (drawerConfig) => (
+                <Ionicons
+                  name={'ios-person'}
                   size={23}
                   color={drawerConfig.tintColor}
                 />

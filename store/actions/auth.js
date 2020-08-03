@@ -1,3 +1,4 @@
+import { AsyncStorage } from 'react-native'
 export const SIGNUP = 'SIGNUP'
 export const LOGIN = 'LOGIN';
 
@@ -53,5 +54,15 @@ export const login =(email, password) => {
             type: LOGIN,
             userInfo: resData
         })
+        const expirationDate= new Date ((new Date().getTime() + parseInt(resData.expresIn)) * 1000) 
+        saveDataToStorage(resData.idToken, resData.localId, expirationDate)
     }
 } 
+
+const saveDataToStorage = (token, userId, expirationDate) => {
+    AsyncStorage.setItem('userData', JSON.stringify({
+        token,
+        userId,
+        expirationDate: expirationDate.toISOString()
+    }));
+}
